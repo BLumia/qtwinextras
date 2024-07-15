@@ -145,7 +145,7 @@ void QWinJumpListPrivate::_q_rebuild()
             appendKnownCategory(KDC_RECENT);
         if (frequent && frequent->isVisible())
             appendKnownCategory(KDC_FREQUENT);
-        for (QWinJumpListCategory *category : qAsConst(categories)) {
+        for (QWinJumpListCategory *category : std::as_const(categories)) {
             if (category->isVisible())
                 appendCustomCategory(category);
         }
@@ -577,7 +577,7 @@ void QWinJumpList::clear()
     frequent()->clear();
     if (d->tasks)
         d->tasks->clear();
-    for (QWinJumpListCategory *category : qAsConst(d->categories))
+    for (QWinJumpListCategory *category : std::as_const(d->categories))
         category->clear();
     d->destroy();
 }

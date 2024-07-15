@@ -4,7 +4,7 @@
 ## WinExtras Module:
 #####################################################################
 
-qt_add_module(WinExtras
+qt_internal_add_module(WinExtras
     SOURCES
         qwinevent.cpp qwinevent.h
         qwineventfilter.cpp qwineventfilter_p.h
@@ -41,11 +41,11 @@ qt_add_module(WinExtras
 ## Scopes:
 #####################################################################
 
-qt_extend_target(WinExtras CONDITION QT_FEATURE_dynamicgl OR (WIN32 AND NOT TARGET Qt::OpenGL)
+qt_internal_extend_target(WinExtras CONDITION QT_FEATURE_dynamicgl OR (WIN32 AND NOT TARGET Qt::OpenGL)
     LIBRARIES
         gdi32
 )
-qt_add_docs(WinExtras
+qt_internal_add_docs(WinExtras
     doc/qtwinextras.qdocconf
 )
 

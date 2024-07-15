@@ -62,13 +62,15 @@ MusicPlayer::MusicPlayer(QWidget *parent) : QWidget(parent)
     createTaskbar();
     createThumbnailToolBar();
 
+    mediaPlayer.setAudioOutput(&audioOutput);
+
     connect(&mediaPlayer, &QMediaPlayer::positionChanged, this, &MusicPlayer::updatePosition);
     connect(&mediaPlayer, &QMediaPlayer::durationChanged, this, &MusicPlayer::updateDuration);
-    connect(&mediaPlayer, &QMediaObject::metaDataAvailableChanged, this, &MusicPlayer::updateInfo);
+    // connect(&mediaPlayer, &QMediaObject::metaDataAvailableChanged, this, &MusicPlayer::updateInfo);
 
-    connect(&mediaPlayer, QOverload<QMediaPlayer::Error>::of(&QMediaPlayer::error),
+    connect(&mediaPlayer, &QMediaPlayer::errorOccurred,
             this, &MusicPlayer::handleError);
-    connect(&mediaPlayer, &QMediaPlayer::stateChanged,
+    connect(&mediaPlayer, &QMediaPlayer::playbackStateChanged,
             this, &MusicPlayer::updateState);
 
     setAcceptDrops(true);
@@ -76,7 +78,7 @@ MusicPlayer::MusicPlayer(QWidget *parent) : QWidget(parent)
 
 QStringList MusicPlayer::supportedMimeTypes()
 {
-    QStringList result = QMediaPlayer::supportedMimeTypes();
+    QStringList result = {}; // QMediaPlayer::supportedMimeTypes();
     if (result.isEmpty())
         result.append(QStringLiteral("audio/mpeg"));
     return result;
@@ -106,7 +108,7 @@ void MusicPlayer::playUrl(const QUrl &url)
         infoLabel->setText(url.toString());
         fileName.clear();
     }
-    mediaPlayer.setMedia(url);
+    mediaPlayer.setSource(url);
     mediaPlayer.play();
 }
 
@@ -114,7 +116,7 @@ void MusicPlayer::togglePlayback()
 {
     if (mediaPlayer.mediaStatus() == QMediaPlayer::NoMedia)
         openFile();
-    else if (mediaPlayer.state() == QMediaPlayer::PlayingState)
+    else if (mediaPlayer.playbackState() == QMediaPlayer::PlayingState)
         mediaPlayer.pause();
     else
         mediaPlayer.play();
@@ -165,13 +167,13 @@ void MusicPlayer::dropEvent(QDropEvent *event)
 
 void MusicPlayer::mousePressEvent(QMouseEvent *event)
 {
-    offset = event->globalPos() - pos();
+    offset = event->globalPosition().toPoint() - pos();
     event->accept();
 }
 
 void MusicPlayer::mouseMoveEvent(QMouseEvent *event)
 {
-    move(event->globalPos() - offset);
+    move(event->globalPosition().toPoint() - offset);
     event->accept();
 }
 
@@ -181,7 +183,7 @@ void MusicPlayer::mouseReleaseEvent(QMouseEvent *event)
     event->accept();
 }
 
-void MusicPlayer::updateState(QMediaPlayer::State state)
+void MusicPlayer::updateState(QMediaPlayer::PlaybackState state)
 {
     if (state == QMediaPlayer::PlayingState) {
         playButton->setToolTip(tr("Pause"));
@@ -213,7 +215,7 @@ void MusicPlayer::updateDuration(qint64 duration)
     positionSlider->setRange(0, duration);
     positionSlider->setEnabled(duration > 0);
     positionSlider->setPageStep(duration / 10);
-    updateInfo();
+    // updateInfo();
 }
 
 void MusicPlayer::setPosition(int position)
@@ -223,22 +225,22 @@ void MusicPlayer::setPosition(int position)
         mediaPlayer.setPosition(position);
 }
 
-void MusicPlayer::updateInfo()
-{
-    QStringList info;
-    if (!fileName.isEmpty())
-        info.append(fileName);
-    if (mediaPlayer.isMetaDataAvailable()) {
-        QString author = mediaPlayer.metaData(QStringLiteral("Author")).toString();
-        if (!author.isEmpty())
-            info.append(author);
-        QString title = mediaPlayer.metaData(QStringLiteral("Title")).toString();
-        if (!title.isEmpty())
-            info.append(title);
-    }
-    info.append(formatTime(mediaPlayer.duration()));
-    infoLabel->setText(info.join(tr(" - ")));
-}
+// void MusicPlayer::updateInfo()
+// {
+//     QStringList info;
+//     if (!fileName.isEmpty())
+//         info.append(fileName);
+//     if (mediaPlayer.isMetaDataAvailable()) {
+//         QString author = mediaPlayer.metaData(QStringLiteral("Author")).toString();
+//         if (!author.isEmpty())
+//             info.append(author);
+//         QString title = mediaPlayer.metaData(QStringLiteral("Title")).toString();
+//         if (!title.isEmpty())
+//             info.append(title);
+//     }
+//     info.append(formatTime(mediaPlayer.duration()));
+//     infoLabel->setText(info.join(tr(" - ")));
+// }
 
 void MusicPlayer::handleError()
 {
@@ -252,7 +254,7 @@ void MusicPlayer::handleError()
 //! [2]
 void MusicPlayer::updateTaskbar()
 {
-    switch (mediaPlayer.state()) {
+    switch (mediaPlayer.playbackState()) {
     case QMediaPlayer::PlayingState:
         taskbarButton->setOverlayIcon(style()->standardIcon(QStyle::SP_MediaPlay));
         taskbarProgress->show();
@@ -278,7 +280,7 @@ void MusicPlayer::updateThumbnailToolBar()
     backwardToolButton->setEnabled(mediaPlayer.position() > 0);
     forwardToolButton->setEnabled(mediaPlayer.position() < mediaPlayer.duration());
 
-    if (mediaPlayer.state() == QMediaPlayer::PlayingState) {
+    if (mediaPlayer.playbackState() == QMediaPlayer::PlayingState) {
         playToolButton->setToolTip(tr("Pause"));
         playToolButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
     } else {
@@ -304,8 +306,8 @@ void MusicPlayer::createWidgets()
 
     volumeButton = new VolumeButton(this);
     volumeButton->setToolTip(tr("Adjust volume"));
-    volumeButton->setVolume(mediaPlayer.volume());
-    connect(volumeButton, &VolumeButton::volumeChanged, &mediaPlayer, &QMediaPlayer::setVolume);
+    volumeButton->setVolume(audioOutput.volume());
+    connect(volumeButton, &VolumeButton::volumeChanged, this, [this](int volume){ audioOutput.setVolume(volume / 100.f); });
 
     positionSlider = new QSlider(Qt::Horizontal, this);
     positionSlider->setEnabled(false);
@@ -317,7 +319,7 @@ void MusicPlayer::createWidgets()
     positionLabel->setMinimumWidth(positionLabel->sizeHint().width());
 
     QBoxLayout *controlLayout = new QHBoxLayout;
-    controlLayout->setMargin(0);
+    controlLayout->setContentsMargins(0, 0, 0, 0);
     controlLayout->addWidget(openButton);
     controlLayout->addWidget(playButton);
     controlLayout->addWidget(positionSlider);
@@ -370,7 +372,7 @@ void MusicPlayer::createTaskbar()
     connect(positionSlider, &QAbstractSlider::valueChanged, taskbarProgress, &QWinTaskbarProgress::setValue);
     connect(positionSlider, &QAbstractSlider::rangeChanged, taskbarProgress, &QWinTaskbarProgress::setRange);
 
-    connect(&mediaPlayer, &QMediaPlayer::stateChanged, this, &MusicPlayer::updateTaskbar);
+    connect(&mediaPlayer, &QMediaPlayer::playbackStateChanged, this, &MusicPlayer::updateTaskbar);
 }
 //! [5]
 
@@ -403,6 +405,6 @@ void MusicPlayer::createThumbnailToolBar()
 
     connect(&mediaPlayer, &QMediaPlayer::positionChanged, this, &MusicPlayer::updateThumbnailToolBar);
     connect(&mediaPlayer, &QMediaPlayer::durationChanged, this, &MusicPlayer::updateThumbnailToolBar);
-    connect(&mediaPlayer, &QMediaPlayer::stateChanged, this, &MusicPlayer::updateThumbnailToolBar);
+    connect(&mediaPlayer, &QMediaPlayer::playbackStateChanged, this, &MusicPlayer::updateThumbnailToolBar);
 }
 //! [6]

@@ -4,7 +4,7 @@
 ## tst_qpixmap Test:
 #####################################################################
 
-qt_add_test(tst_qpixmap
+qt_internal_add_test(tst_qpixmap
     SOURCES
         tst_qpixmap.cpp
     PUBLIC_LIBRARIES
@@ -15,7 +15,7 @@ qt_add_test(tst_qpixmap
 ## Scopes:
 #####################################################################
 
-qt_extend_target(tst_qpixmap CONDITION QT_FEATURE_dynamicgl OR (WIN32 AND NOT TARGET Qt::OpenGL)
+qt_internal_extend_target(tst_qpixmap CONDITION QT_FEATURE_dynamicgl OR (WIN32 AND NOT TARGET Qt::OpenGL)
     PUBLIC_LIBRARIES
         gdi32
         user32

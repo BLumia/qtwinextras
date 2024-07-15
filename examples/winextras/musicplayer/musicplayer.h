@@ -52,6 +52,7 @@
 #define MUSICPLAYER_H
 
 #include <QWidget>
+#include <QAudioOutput>
 #include <QMediaPlayer>
 
 class VolumeButton;
@@ -89,11 +90,11 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private slots:
-    void updateState(QMediaPlayer::State state);
+    void updateState(QMediaPlayer::PlaybackState state);
     void updatePosition(qint64 position);
     void updateDuration(qint64 duration);
     void setPosition(int position);
-    void updateInfo();
+    // void updateInfo();
     void handleError();
 
     void updateTaskbar();
@@ -114,6 +115,7 @@ private:
     QWinThumbnailToolButton *backwardToolButton = nullptr;
 
     QMediaPlayer mediaPlayer;
+    QAudioOutput audioOutput;
     QAbstractButton *playButton = nullptr;
     VolumeButton *volumeButton = nullptr;
     QSlider *positionSlider = nullptr;

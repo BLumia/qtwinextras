@@ -263,7 +263,7 @@ void PaintWidget::contextMenuEvent(QContextMenuEvent *e)
     contextMenu.addAction(QStringLiteral("Convert into QImage"), this, &PaintWidget::convertBack);
     QAction *saveAction = contextMenu.addAction(QStringLiteral("Save"), this, &PaintWidget::saveBitmap);
     saveAction->setShortcut(Qt::CTRL | Qt::Key_S);
-    contextMenu.exec(e->globalPos());
+    contextMenu.exec(e->globalPosition().toPoint());
 }
 
 static const char description[] =

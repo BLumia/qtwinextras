@@ -59,7 +59,6 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
     QCoreApplication::setApplicationName(QStringLiteral("QuickPlayer"));
     QCoreApplication::setApplicationVersion(QLatin1String(QT_VERSION_STR));

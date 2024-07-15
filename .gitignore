@@ -50,6 +50,11 @@ ui_*.h
 debug
 release
 tmp
+build
+
+# Visual Studio Code generated files
+
+.vscode
 
 # Test generated files
 /tests/auto/cmake/build

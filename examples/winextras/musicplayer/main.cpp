@@ -53,9 +53,9 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
-#include <QDesktopWidget>
 #include <QFileInfo>
 #include <QMimeDatabase>
+#include <QScreen>
 #include <QSettings>
 #include <QIcon>
 #include <QDir>
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     if (!parser.positionalArguments().isEmpty())
         player.playUrl(QUrl::fromUserInput(parser.positionalArguments().constFirst(), QDir::currentPath(), QUrl::AssumeLocalFile));
 
-    const QRect availableGeometry = QApplication::desktop()->availableGeometry(&player);
+    const QRect availableGeometry = player.screen()->availableGeometry();
     player.resize(availableGeometry.width() / 6, availableGeometry.height() / 17);
     player.show();
 

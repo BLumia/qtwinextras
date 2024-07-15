@@ -21,7 +21,7 @@ find_package(Qt6 COMPONENTS Widgets)
 find_package(Qt6 COMPONENTS Multimedia)
 find_package(Qt6 COMPONENTS WinExtras)
 
-add_qt_gui_executable(musicplayer
+qt_add_executable(musicplayer
     main.cpp
     musicplayer.cpp musicplayer.h
     volumebutton.cpp volumebutton.h

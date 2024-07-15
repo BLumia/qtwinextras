@@ -113,7 +113,7 @@ void QQuickThumbnailToolBar::removeButton(QQuickThumbnailToolButton *button)
 void QQuickThumbnailToolBar::clear()
 {
     m_toolbar.clear();
-    for (QQuickThumbnailToolButton *button : qAsConst(m_buttons))
+    for (QQuickThumbnailToolButton *button : std::as_const(m_buttons))
         button->deleteLater();
     m_buttons.clear();
     emit countChanged();

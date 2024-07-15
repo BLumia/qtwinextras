@@ -172,7 +172,7 @@ void QQuickJumpList::rebuild()
         for (QWinJumpListItem *item : items)
             jumpList.tasks()->addItem(item);
     }
-    for (QQuickJumpListCategory *category : qAsConst(m_categories)) {
+    for (QQuickJumpListCategory *category : std::as_const(m_categories)) {
         if (category->isVisible())
             jumpList.addCategory(category->title(), category->toItemList())->setVisible(true);
     }
