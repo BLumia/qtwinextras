@@ -51,10 +51,10 @@
 import QtQuick 2.1
 import QtQuick.Window 2.1
 import QtQuick.Layouts 1.0
-import QtQuick.Controls 1.0
-import QtQuick.Dialogs 1.0
-import QtMultimedia 5.0
-import QtWinExtras 1.0 as Win
+import QtQuick.Controls 2.0
+import QtQuick.Dialogs
+import QtMultimedia 6.0
+import QtWinExtras as Win
 
 Window {
     id: window
@@ -129,6 +129,9 @@ Window {
         id: mediaPlayer
         autoPlay: true
         source : url
+        audioOutput: AudioOutput {
+            volume: slider.value
+        }
         readonly property string title: !!metaData.author && !!metaData.title
                                         ? qsTr("%1 - %2").arg(metaData.author).arg(metaData.title)
                                         : metaData.author || metaData.title || source
@@ -164,10 +167,10 @@ Window {
                 FileDialog {
                     id: fileDialog
 
-                    folder : musicUrl
+                    currentFolder : musicUrl
                     title: qsTr("Open file")
                     nameFilters: [qsTr("MP3 files (*.mp3)"), qsTr("All files (*.*)")]
-                    onAccepted: mediaPlayer.source = fileDialog.fileUrl
+                    onAccepted: mediaPlayer.source = fileDialog.selectedFile
                 }
             }
 
@@ -176,7 +179,7 @@ Window {
 
                 enabled: mediaPlayer.hasAudio
                 Layout.preferredWidth: playButton.implicitHeight
-                iconSource: mediaPlayer.playbackState === MediaPlayer.PlayingState ? "qrc:/pause-16.png" : "qrc:/play-16.png"
+                icon.source: mediaPlayer.playbackState === MediaPlayer.PlayingState ? "qrc:/pause-16.png" : "qrc:/play-16.png"
                 onClicked: mediaPlayer.playbackState === MediaPlayer.PlayingState ? mediaPlayer.pause() : mediaPlayer.play()
             }
 
@@ -184,13 +187,13 @@ Window {
                 id: positionSlider
 
                 Layout.fillWidth: true
-                maximumValue: mediaPlayer.duration
+                to: mediaPlayer.duration
 
                 property bool sync: false
 
                 onValueChanged: {
                     if (!sync)
-                        mediaPlayer.seek(value)
+                        mediaPlayer.position = value
                 }
 
                 Connections {

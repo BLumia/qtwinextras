@@ -17,14 +17,14 @@ The known missing important functionalities that not provided as a part of Qt 6'
 
 ## Usage
 
-Before building, you might need to update `QT_REPO_MODULE_VERSION` to the Qt version you're using. Version older than `6.7.2` is not tested and I have no plan to test this module on older Qt version.
-
 To build, simply use CMake (QMake is NOT supported):
 
 ```shell
 $ cmake -Bbuild .
 $ cmake --build build --config RelWithDebInfo
 ```
+
+Version older than `6.7.2` is not tested and I have no plan to test this module on older Qt version.
 
 You can also enable the `QT_BUILD_EXAMPLES` option to build the existing examples.
 

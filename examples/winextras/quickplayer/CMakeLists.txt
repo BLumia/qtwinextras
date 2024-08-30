@@ -18,6 +18,8 @@ set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/winextras/quickplayer")
 find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS Quick)
+find_package(Qt6 COMPONENTS Multimedia)
+find_package(Qt6 COMPONENTS WinExtras)
 
 qt_add_executable(quickplayer
     main.cpp
@@ -26,6 +28,8 @@ target_link_libraries(quickplayer PUBLIC
     Qt::Core
     Qt::Gui
     Qt::Quick
+    Qt::Multimedia
+    Qt::WinExtras
 )
 
 
