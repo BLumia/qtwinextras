@@ -94,7 +94,7 @@ private slots:
     void updatePosition(qint64 position);
     void updateDuration(qint64 duration);
     void setPosition(int position);
-    // void updateInfo();
+    void updateInfo();
     void handleError();
 
     void updateTaskbar();

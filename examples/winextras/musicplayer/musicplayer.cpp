@@ -53,6 +53,7 @@
 
 #include <QtWidgets>
 #include <QtWinExtras>
+#include <QMediaMetaData>
 
 MusicPlayer::MusicPlayer(QWidget *parent) : QWidget(parent)
 {
@@ -66,7 +67,7 @@ MusicPlayer::MusicPlayer(QWidget *parent) : QWidget(parent)
 
     connect(&mediaPlayer, &QMediaPlayer::positionChanged, this, &MusicPlayer::updatePosition);
     connect(&mediaPlayer, &QMediaPlayer::durationChanged, this, &MusicPlayer::updateDuration);
-    // connect(&mediaPlayer, &QMediaObject::metaDataAvailableChanged, this, &MusicPlayer::updateInfo);
+    connect(&mediaPlayer, &QMediaPlayer::metaDataChanged, this, &MusicPlayer::updateInfo);
 
     connect(&mediaPlayer, &QMediaPlayer::errorOccurred,
             this, &MusicPlayer::handleError);
@@ -215,7 +216,7 @@ void MusicPlayer::updateDuration(qint64 duration)
     positionSlider->setRange(0, duration);
     positionSlider->setEnabled(duration > 0);
     positionSlider->setPageStep(duration / 10);
-    // updateInfo();
+    updateInfo();
 }
 
 void MusicPlayer::setPosition(int position)
@@ -225,22 +226,22 @@ void MusicPlayer::setPosition(int position)
         mediaPlayer.setPosition(position);
 }
 
-// void MusicPlayer::updateInfo()
-// {
-//     QStringList info;
-//     if (!fileName.isEmpty())
-//         info.append(fileName);
-//     if (mediaPlayer.isMetaDataAvailable()) {
-//         QString author = mediaPlayer.metaData(QStringLiteral("Author")).toString();
-//         if (!author.isEmpty())
-//             info.append(author);
-//         QString title = mediaPlayer.metaData(QStringLiteral("Title")).toString();
-//         if (!title.isEmpty())
-//             info.append(title);
-//     }
-//     info.append(formatTime(mediaPlayer.duration()));
-//     infoLabel->setText(info.join(tr(" - ")));
-// }
+void MusicPlayer::updateInfo()
+{
+    QStringList info;
+    if (!fileName.isEmpty())
+        info.append(fileName);
+    if (!mediaPlayer.metaData().isEmpty()) {
+        QString author = mediaPlayer.metaData().stringValue(QMediaMetaData::Author);
+        if (!author.isEmpty())
+            info.append(author);
+        QString title = mediaPlayer.metaData().stringValue(QMediaMetaData::Title);
+        if (!title.isEmpty())
+            info.append(title);
+    }
+    info.append(formatTime(mediaPlayer.duration()));
+    infoLabel->setText(info.join(tr(" - ")));
+}
 
 void MusicPlayer::handleError()
 {
